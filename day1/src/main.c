@@ -11,7 +11,7 @@ int sum_array(int *array, int size);
 
 int main(void) {
   char buffer[BUFFER_SIZE];
-  FILE *file = fopen("input", "r");
+  FILE *file = fopen("./src/input.txt", "r");
   int sum = 0;
   int podium[PODIUM_SIZE] = {0};
 
