@@ -22,7 +22,7 @@ Play parse_player_play(char player_encoded);
 
 int main(void) {
   char buffer[BUFFER_SIZE];
-  FILE *file = fopen("input", "r");
+  FILE *file = fopen("./src/input.txt", "r");
 
   if (file == NULL) {
     printf("File does not exist\n");
