@@ -2,11 +2,14 @@
 #include <stdlib.h>
 
 #define BUFFER_SIZE 64
+#define LOSS_PTS 0
+#define DRAW_PTS 3
+#define WIN_PTS 6
 
 typedef enum {
-  ROCK,
-  PAPER,
-  SCISSORS,
+  ROCK = 1,
+  PAPER = 2,
+  SCISSORS = 3,
 } Play;
 
 typedef struct {
@@ -14,79 +17,93 @@ typedef struct {
   Play opponent_choice;
 } Round;
 
-char *play_repr(Play play);
-void parse_round(char *to_parse);
+char* play_repr(Play play);
+Round parse_round(char* to_parse);
 void print_round(Round round);
 Play parse_opponent_play(char opponent_encoded);
 Play parse_player_play(char player_encoded);
+int settle_round(Round round);
+
+int settle_round(Round round) {
+  int outcome = (round.player_choice - round.opponent_choice + 3) % 3;
+  switch (outcome) {
+    case 0:
+      return DRAW_PTS + round.player_choice;
+    case 1:
+      return WIN_PTS + round.player_choice;
+    case 2:
+      return LOSS_PTS + round.player_choice;
+    default:
+      return -1;
+  }
+}
 
 int main(void) {
   char buffer[BUFFER_SIZE];
-  FILE *file = fopen("./src/input.txt", "r");
+  FILE* file = fopen("./src/input.txt", "r");
+  int total_score = 0;
 
   if (file == NULL) {
     printf("File does not exist\n");
     exit(1);
   }
 
-  printf("first round:\n");
-  fgets(buffer, BUFFER_SIZE, file);
-  printf("%s", buffer);
-  parse_round(buffer);
+  while (fgets(buffer, BUFFER_SIZE, file) != NULL) {
+    printf("%s", buffer);
+    Round round = parse_round(buffer);
+    total_score += settle_round(round);
+  }
 
-  // while (fgets(buffer, BUFFER_SIZE, file) != NULL) {
-  // 	printf("%s", buffer);
-  // }
+  printf("total score: %d\n", total_score);
 
   fclose(file);
 }
 
-void parse_round(char *to_parse) {
+Round parse_round(char* to_parse) {
   char opponent_encoded;
   char player_encoded;
 
   sscanf(to_parse, "%c %c", &opponent_encoded, &player_encoded);
-  printf("opp:\n\t%c\n", opponent_encoded);
-  printf("opp played %s\n", play_repr(parse_opponent_play(opponent_encoded)));
-  printf("player:\n\t%c\n", player_encoded);
-  printf("player played %s\n", play_repr(parse_opponent_play(player_encoded)));
+  Round round = {parse_player_play(player_encoded),
+                 parse_opponent_play(opponent_encoded)};
+  return round;
 }
 
 Play parse_opponent_play(char opponent_encoded) {
   switch (opponent_encoded) {
-  case 'A':
-    return ROCK;
-  case 'B':
-    return PAPER;
-  case 'C':
-    return SCISSORS;
-  default:
-    return -1;
+    case 'A':
+      return ROCK;
+    case 'B':
+      return PAPER;
+    case 'C':
+      return SCISSORS;
+    default:
+      return -1;
   }
 }
 
 Play parse_player_play(char player_encoded) {
   switch (player_encoded) {
-  case 'X':
-    return ROCK;
-  case 'Y':
-    return PAPER;
-  case 'Z':
-    return SCISSORS;
-  default:
-    return -1;
+    case 'X':
+      return ROCK;
+    case 'Y':
+      return PAPER;
+    case 'Z':
+      return SCISSORS;
+    default:
+      return -1;
   }
 }
 
-char *play_repr(Play play) {
+char* play_repr(Play play) {
   switch (play) {
-  case ROCK:
-    return "Rock";
-  case PAPER:
-    return "Paper";
-  case SCISSORS:
-    return "Scissors";
-  default:
-    return "Invalid";
+    case ROCK:
+      return "Rock";
+    case PAPER:
+      return "Paper";
+    case SCISSORS:
+      return "Scissors";
+    default:
+      return "Invalid";
   }
 }
