@@ -24,6 +24,9 @@ Play parse_opponent_play(char opponent_encoded);
 Play parse_player_play(char player_encoded);
 int settle_round(Round round);
 
+Round parse_true_round(char* to_parse);
+Play parse_true_player_play(char player_encoded, Play opponent_action);
+
 int settle_round(Round round) {
   int outcome = (round.player_choice - round.opponent_choice + 3) % 3;
   switch (outcome) {
@@ -49,14 +52,26 @@ int main(void) {
   }
 
   while (fgets(buffer, BUFFER_SIZE, file) != NULL) {
-    printf("%s", buffer);
-    Round round = parse_round(buffer);
+    Round round = parse_true_round(buffer);
     total_score += settle_round(round);
   }
 
   printf("total score: %d\n", total_score);
 
   fclose(file);
+}
+
+Round parse_true_round(char* to_parse) {
+  char opponent_encoded;
+  char player_encoded;
+  Play opponent_action;
+  Play player_action;
+
+  sscanf(to_parse, "%c %c", &opponent_encoded, &player_encoded);
+  opponent_action = parse_opponent_play(opponent_encoded);
+  player_action = parse_true_player_play(player_encoded, opponent_action);
+  Round round = {player_action, opponent_action};
+  return round;
 }
 
 Round parse_round(char* to_parse) {
@@ -67,6 +82,28 @@ Round parse_round(char* to_parse) {
   Round round = {parse_player_play(player_encoded),
                  parse_opponent_play(opponent_encoded)};
   return round;
+}
+
+Play parse_true_player_play(char player_encoded, Play opponent_action) {
+  int player_choice;
+  switch (player_encoded) {
+    case 'X': {
+      player_choice = (int)opponent_action - 1;
+      break;
+    }
+    case 'Y': {
+      player_choice = (int)opponent_action;
+      break;
+    }
+    case 'Z': {
+      player_choice = (int)opponent_action + 1;
+      break;
+    }
+    default:
+      exit(1);
+  }
+  player_choice %= 3;
+  return player_choice == 0 ? 3 : player_choice;
 }
 
 Play parse_opponent_play(char opponent_encoded) {
