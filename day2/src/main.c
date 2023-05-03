@@ -43,7 +43,7 @@ int settle_round(Round round) {
 
 int main(void) {
   char buffer[BUFFER_SIZE];
-  FILE* file = fopen("./src/input.txt", "r");
+  FILE* file = fopen("./subject/input.txt", "r");
   int total_score = 0;
 
   if (file == NULL) {

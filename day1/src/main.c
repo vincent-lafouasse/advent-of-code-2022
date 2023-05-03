@@ -11,7 +11,7 @@ void swap(int *a, int *b);
 void print_arr(int *arr, int size);
 
 int main(void) {
-  FILE *file = fopen("./src/input.txt", "r");
+  FILE *file = fopen("./subject/input.txt", "r");
   int podium[PODIUM_SIZE] = {0};
 	int amount;
 
